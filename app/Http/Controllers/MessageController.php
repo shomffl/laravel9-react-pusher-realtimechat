@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Message;
 use Inertia\Inertia;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
@@ -28,6 +29,10 @@ class MessageController extends Controller
         $input = $request->all();
         $input += ["sender_id" => auth()->id()];
         $message->fill($input)->save();
+
+        $user = auth()->user();
+        broadcast(new MessageSent($user, $message))->toOthers();
+
         return redirect(route("messages.show", $input["reciever_id"]));
     }
 }

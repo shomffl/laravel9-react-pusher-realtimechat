@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/inertia-react";
 import { Inertia } from "@inertiajs/inertia";
@@ -6,7 +6,7 @@ import moment from "moment/moment";
 
 const Show = (props) => {
     const { reciever_id, messages } = props;
-    const { data, setData, post } = useForm("MessageShow", {
+    const { data, setData, get, post } = useForm("MessageShow", {
         message: "",
         reciever_id: reciever_id,
     });
@@ -24,6 +24,12 @@ const Show = (props) => {
         );
         return beforeDate.format("YYYY年MM月DD日 HH:mm");
     };
+
+    useEffect(() => {
+        window.Echo.private("chat").listen("MessageSent", (e) => {
+            Inertia.reload();
+        });
+    }, []);
 
     return (
         <AuthenticatedLayout
@@ -48,12 +54,10 @@ const Show = (props) => {
                                     <div className="text-xs">
                                         {formatingCreatedAt(message.created_at)}
                                     </div>
-                                    <div className="w-full"></div>
                                 </div>
                             ) : (
-                                <div className="flex items-center">
-                                    <div className="w-full"></div>
-                                    <div className="text-xs">
+                                <div className="flex items-center gap-1">
+                                    <div className="ml-auto text-xs">
                                         {formatingCreatedAt(message.created_at)}
                                     </div>
                                     <div className="w-max px-4 py-1 my-2 rounded bg-white border border-gray-400">
